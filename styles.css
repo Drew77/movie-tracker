@@ -6,21 +6,30 @@
 }
 
 h1 {
+    padding: 20px 0;
+    display: inline-block;
     text-align: center; 
+    margin: 0 auto;
+    font-family: helvetica;
 }
 
 .container {
     max-width: 1200px;
     width: 100%;
-    padding: 40px 40px 200px;
+    padding: 20px 20px 20px;
     margin: 0 auto;
+}
+
+.container.movies {
+    padding: 80px 20px 100px;
 }
 
 form {
     background: #eee;
     margin: 0 auto;
-    width: 500px;
-    padding: 20px;
+    max-width: 800px;
+    width: 100%;
+    padding: 1px;
 }
 
 .input-container {
@@ -30,7 +39,17 @@ form {
     width: 100%;
     height: 40px;
     border: 1px solid #eee;
-    margin-bottom: 5px;
+    display: flex;
+}
+
+.movie-container {
+    z-index: 50;
+    padding: 20px;
+    background: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .textarea-container {
@@ -43,14 +62,17 @@ form {
     border: 1px solid #eee;
 }
 
-form input,
-textarea {
-    padding: 20px 5px 5px;
+.search-input {
+    padding: 5px 5px 5px;
     font-size: 18px;
     background: transparent;
     border: none;
     height: 40px;
-    width: 100%;
+    width: calc(100% - 100px);
+}
+
+.search-input {
+    focus
 }
 
 form input:focus {
@@ -70,25 +92,15 @@ textarea {
     resize: none;
 }
 
-form label {
-    transition: transform 0.3s, font-size 1s 0.3s;
-    height: 40px;
-    display: block;
-    width: 100%;
-    font-size: 18px;
-    position: absolute;
-    top: 0px;
-    padding: 15px 5px 5px;
-    color: #000;
-}
+
 
 form button {
-    background: green;
+    background: #2266aa;
     color: white;
     font-weight: 500;
     padding: 10px;
     border: none;
-    width: 100%;
+    width: 100px;
     text-align: center;
 }
 
@@ -104,7 +116,7 @@ button:hover {
     overflow: hidden;
 }
 
-.movie:hover {
+.movies-table div.movie:hover {
     cursor: pointer;
     background: #0892D0;
     color: #fff;
@@ -126,19 +138,25 @@ button:hover {
 .movie div {
     padding: 5px;
     display: flex;
-    width: 25%;
+    width: 33.33333%;
 }
 
 .title div {
     padding: 5px;
     display: flex;
-    width: 25%;
+    width: 33.33333%;
 }
+
+.suggestion-title {
+    display: flex;
+    align-content: center;
+}
+
 
 .suggestions {
     border: 1px solid #eee;
     position: absolute;
-    z-index: 20;
+    z-index: 50;
     display: none;
     background: #fff;
     width: calc( 100% + 2px);
@@ -146,8 +164,14 @@ button:hover {
     top: 39px;
 }
 
-.suggestions.active {
+.suggestions img {
+    width: 100%;
     display: block;
+}
+
+.suggestions.active {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .title {
@@ -158,12 +182,33 @@ button:hover {
     background: #3e3e3e;
 }
 
-.suggestion {
-    width: 100%;
-    font-size: 18px;
-    padding: 5px;
-    border-bottom: 1px solid #eee;
+.movie--inner {
+    position: relative;
 }
+
+.suggestion {
+    align-content: center;
+    width: 50%;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+}
+
+.suggestion-text {
+    pointer-events: none;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: space-between;
+    width: 75%;
+}
+
+.suggestion-poster {
+    pointer-events: none;
+    width: 25%;
+}
+    
 
 .suggestion:hover {
     cursor: pointer;
@@ -171,11 +216,471 @@ button:hover {
     color: #fff;
 }
 
+.overlay {
+    display: none;
+}
+
 .overlay.active {
+    display: block;
     z-index: 5;
     width: 100%;
     height: 100vh;
     position: fixed;
-    background: #0892D0;
+    background: #eee;
+    opacity: 0.75;
+}
+/*
+movie details popup
+*/
+
+.movie-details {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ace;
+    max-width: 800px;
+    background: #fff;
+    padding: 20px;
+    opacity: 1;
+    z-index: 50;
+}
+
+.movie-details--container {
+    display: flex;
+}
+
+.movie-details__title {
+    font-size: 24px;
+    padding-bottom: 20px;
+    color: #363636;
+    font-weight: 700;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+.loader + .movie-details--container {
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.movie-details__list {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.details__list__item {
+    padding-bottom: 5px;
+}
+.btn {
+    padding: 10px;
+    text-transform: uppercase;
+}
+
+.btn-delete {
+    background: #FF1919;
+    color: #fff;
+    border: 1px solid #FF1919;
+}
+
+.movie-details__left {
+    width: 300px;
+}
+
+.movie-details__right {
+    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px;
+    width: 454px;
+}
+
+.movie-details__right .account__options {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.movie-details__image {
+    display: block;
+    width: 100%;
+}
+
+.deleted-message.show-message {
+    opacity: 0;
+}
+
+.deleted-message {
+    max-width: 500px;
+    width: 100%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    padding: 20px;
+    transform: translate(-50%, -50%);
+    background: red;
+    color: #fff;
+    z-index: 400;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 2s;
+}
+
+
+header {
+    display: flex;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 20px;
+    justify-content: space-between;
+}
+
+.account__options,
+.account__options.logout {
+    float: right;
+    background: #2266aa;
+    color: white;
+    font-weight: 500;
+    padding: 10px;
+    border: none;
+    width: 100px;
+    text-align: center;
+    align-self: center;
+}
+
+.account-container.signup-failure {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    text-align: center;
+    background: red;
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;
+    height: auto;
+    min-height: none;
+}
+
+.fade-out.signup-failure {
+    opacity: 0;
+}
+
+.account-container.fade-out {
+    transition: opacity 0.5s ease-in 0.5s;
+    opacity: 0;
+}
+
+.account__options:hover,
+.account__options.logout:hover {
+    cursor: pointer;
     opacity: 0.9;
+}
+
+.btn-signout {
+    background: red;
+    width: 100%;
+    color: white;
+    border: none;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.btn-signout:hover {
+    opacity: 0.7;
+}
+
+.account-container {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ace;
+    max-width: 500px;
+    background: #fff;
+    min-height: 50px;
+    min-width: 500px;
+    padding: 20px;
+    opacity: 1;
+    z-index: 50;
+    position: fixed;
+}
+
+.add-movie-form {
+    padding: 10px;
+}
+.signup-success {
+    display: flex;
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;    
+    background: green;
+    height: auto;
+    min-height: none;
+    text-align: center;
+    align-content: center;
+    align-items: center;
+}
+
+.movies-table .movie:nth-of-type(even) {
+    background: #ace;
+}
+
+.signup--complete {
+    width: 100%;
+}
+
+.toggle {
+    width: 100%;
+    display: flex;
+}
+
+.toggle .tabs {
+    background: #eee;
+    text-align: center;
+    width: 50%;
+    line-height: 25px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    display: block;
+    color: #2493d2;
+    border: 1px solid #eee;
+}
+
+.tabs:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.account-form {
+    visibility: hidden;
+    transition: opacity 0.3s;
+    position: absolute;
+    opacity: 0;
+}
+
+.account-form.active {
+    visibility: visible;
+    position: static;
+    opacity: 1;
+}
+
+.tabs.active {
+    background: #fff;
+}
+
+.account-form {
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.add-movie-form input,
+.add-movie-form select {
+    height: 40px;
+    width: 50%;
+    border: 1px solid black;
+    padding-left: 5px;
+}
+.account-container .account-input {
+    border: none;
+    display: block;
+    width: 100%;
+    padding: 5px;
+    font-size: 18px;
+    color: #363636;
+    margin-bottom: 5px;
+    background: #fff;
+}
+
+.btn.add-movie {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-account {
+    width: 100%;
+}
+
+.btn-add {
+    background: green;
+    color: #fff;
+    border: 1px solid #fff;
+    font-size: 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.add-form--title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.btn-add:hover {
+    border: 1px solid green;
+    opacity: 0.7;
+}
+
+.add-form__label {
+    line-height: 38px;
+    padding-left: 5px;
+    width: 50%;
+}
+
+.input-container {
+    display: flex;
+}
+
+
+.movies-grid {
+    display: grid;
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px;
+}
+
+.movie-grid--image {
+    width: 100%;
+    display: block;
+}
+
+.movie--outer {
+    width: 25%;
+    padding: 5px;
+}
+
+.movie--outer {
+    transition: transform 0.5s;
+    position: relative;   
+}
+
+.movie-overlay {
+    opacity: 0;
+    transition: opacity 0.5s 0.5s;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    position: absolute;
+    left: 0px;  
+    background-image: radial-gradient(circle, #000 40%, #4C4C4C 60%, #b2b2b2 85%, #fff);
+    background-color: #000;
+    color: #fff;
+}
+
+.active-movie .movie-overlay {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.movie--outer.active-movie {
+    transform: scale(1.05) translateZ(0);
+}
+
+.movie--inner--details {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.remove-movie {
+    background: red;
+    padding: 10px;
+    border: none;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    pointer-events: auto;
+}
+.movie--inner--details {
+    pointer-events: none;
+}
+.movie--inner--details.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.movie--inner--details h4 {
+    font-size: 24px;
+    padding-bottom: 5px;
+    color: #fff;
+    pointer-events: none;
+}
+
+@media only screen and (max-width: 800px) {
+    h1 {
+        font-size: 26px;
+    }
+    .suggestion {
+        justify-content: space-between;
+        width: 100%;
+    }
+    .suggestion-poster {
+        width: 15%;
+    }
+    .loader {
+        margin: 0 auto;
+    }
+    .movie-details {
+        padding-top: 20px;
+        width: 90%;
+        top: 20px;
+        transform: translate(-50%, 0);
+        margin-bottom: 50px;
+    } 
+    .movie--outer {
+        width: 33.33333%;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    .movie-details__left,
+    .movie-details__right {
+        width: 100%;
+    }
+    .movie-details--container {
+        flex-direction: column;
+    }
+    .movie-details__image {
+        max-width: 400px;
+        margin: 0 auto 20px;
+    }
+    .account-container {
+        width: 90%;
+        min-width: 0;
+    }
+
+}
+
+@media only screen and (max-width: 500px) {
+    .movie--outer {
+        width: 50%;
+    }
+    .container.movies {
+        padding: 20px;
+    }
+    .search-movies .search-input {
+        width: 100%;
+        font-size: 12px;
+    }
+    .suggestion {
+        font-size: 12px;
+    }
+    .search-movies button {
+        display: none;
+    }
 }
